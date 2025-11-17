@@ -1,0 +1,73 @@
+# Modulus dan eksponen RSA untuk SERVER
+SERVER_N = 156469044316159947363884933898886215289275557992816167439134938174196403828497815972605478729001621250029908157498268904948735474704947545460771419340165518354686383430215119261634609323674502678285165178293065860108033297764529016937887524527032108070720062607739778705451732889179250323034471406939043795131
+SERVER_E = 65537
+SERVER_D = 19488696928128552680269650242269634369956027393722013093536251448183512800169719733103179709452452822992393131182366999195554209440530326212755648984602299379945006315604386904086035687378590518059555944370751082209851596056492019577231305754820594144169070624143923895863584007055880342460682218727266152025
+
+SERVER_PUBLIC_KEY  = (SERVER_N, SERVER_E)
+SERVER_PRIVATE_KEY = (SERVER_N, SERVER_D)
+
+# Client
+
+CLIENT_N = 150730967367299134506912821638860026828259042763503589024663020798515403846395263090779488980345157017349230972311269677284061798978899143908868266598363369412536356595090274511837117218103569009470786620281955435246943362781837700368360255950549005315290594762236465443234662534937805698234518207323586052059
+CLIENT_E = 65537
+CLIENT_D = 65045666624933556198136243117314186623486093625219749958054339117036382408133232114711996545426729300794395162174362167601647828979381664379795503025796312555449305901743227228923686931448481591899033379155247966992454998834332212185716595653818529244924448231767305247046297898629550202801998392682077740765
+
+CLIENT_PUBLIC_KEY  = (CLIENT_N, CLIENT_E)
+CLIENT_PRIVATE_KEY = (CLIENT_N, CLIENT_D)
+
+
+# ==============================
+#  FUNGSI DASAR RSA
+# ==============================
+
+def encrypt_int(m: int, public_key):
+    """Enkripsi integer m dengan kunci publik RSA (n, e).
+
+    Argumen:
+        m          : integer pesan (0 <= m < n)
+        public_key : tuple (n, e)
+
+    Return:
+        integer ciphertext
+    """
+    n, e = public_key
+    if m < 0:
+        raise ValueError("message integer harus >= 0")
+    if m >= n:
+        raise ValueError("message terlalu besar untuk modulus RSA")
+    return pow(m, e, n)
+
+
+def decrypt_int(c: int, private_key):
+    """Dekripsi integer c dengan kunci privat RSA (n, d).
+
+    Argumen:
+        c           : integer ciphertext (0 <= c < n)
+        private_key : tuple (n, d)
+
+    Return:
+        integer plaintext
+    """
+    n, d = private_key
+    if c < 0 or c >= n:
+        raise ValueError("ciphertext di luar range modulus")
+    return pow(c, d, n)
+
+
+# ==============================
+#  PUBLIC KEY AUTHORITY (PKA)
+# ==============================
+
+def get_public_key(identity: str):
+    """Simulasi Public Key Authority.
+
+    identity (case-insensitive):
+      - "server" atau "alice" -> public key milik server
+      - "client" atau "bob"   -> public key milik client
+    """
+    ident = identity.strip().lower()
+    if ident in ("server", "alice"):
+        return SERVER_PUBLIC_KEY
+    if ident in ("client", "bob"):
+        return CLIENT_PUBLIC_KEY
+    raise ValueError(f"Identity tidak dikenal: {identity!r}")
